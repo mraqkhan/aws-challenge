@@ -10,7 +10,7 @@ Create the cloud infrastructre:
 
 Create a lambda function in Python:
 - The lambda can be started by an unspecified event
-- Query an API URL: https://metadata.pbpms.de/metadata/pb-dsa-ios/50.9,6.9
+- Query an API URL: http://pb-coding-challenge.s3-website.eu-central-1.amazonaws.com/metadata-sparse.json
 - Parse the returned location metadata
 - Sort the data by distance from the root geo location lat:50.9, lon:6.9
 - Store the sorted data in a S3 bucket
