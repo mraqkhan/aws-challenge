@@ -12,7 +12,7 @@ Create a lambda function in Python:
 - The lambda can be started by an unspecified event
 - Query an API URL: http://pb-coding-challenge.s3-website.eu-central-1.amazonaws.com/metadata-sparse.json
 - Parse the returned location metadata
-- Sort the data by distance from the root geo location lat:50.9, lon:6.9
+- The data contains geo locations of latitude and longitude. Sort the data by distance from the root geo location lat: 50.9, lon :6.9
 - Store the sorted data in a S3 bucket
 
 # Some starting point for discussion
