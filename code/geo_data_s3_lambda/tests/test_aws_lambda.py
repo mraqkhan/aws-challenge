@@ -9,7 +9,6 @@ import json
 import boto3
 from moto import mock_s3
 
-
 sys.path.insert(0, "../handler")
 from aws_lambda import *
 
@@ -24,7 +23,7 @@ class TestAWSLambda(unittest.TestCase):
     mock_json_data = {
         "places": [
             {
-                "city": "a",
+                "city": "Köln - Flittard",
                 "countryCode": "DE",
                 "id": 73274,
                 "lat": 50.9996751,
@@ -36,7 +35,7 @@ class TestAWSLambda(unittest.TestCase):
                 "zipCode": "51061",
             },
             {
-                "city": "b",
+                "city": "Köln",
                 "countryCode": "DE",
                 "id": 146620,
                 "lat": 50.9170352,
@@ -53,7 +52,7 @@ class TestAWSLambda(unittest.TestCase):
     mock_sorted_json_data = {
         "places": [
             {
-                "city": "b",
+                "city": "Köln",
                 "countryCode": "DE",
                 "id": 146620,
                 "lat": 50.9170352,
@@ -65,7 +64,7 @@ class TestAWSLambda(unittest.TestCase):
                 "zipCode": "50935",
             },
             {
-                "city": "a",
+                "city": "Köln - Flittard",
                 "countryCode": "DE",
                 "id": 73274,
                 "lat": 50.9996751,
@@ -120,6 +119,54 @@ class TestAWSLambda(unittest.TestCase):
         with mock.patch.dict(os.environ, {"Environment": "prod"}):
             log_level = set_log_level()
         self.assertEqual(log_level, logging.ERROR)
+
+    def test_s3_save_object(self):
+        """
+        Test case for lambda_handler
+        """
+        s3_bucket = os.environ["S3_Bucket"]
+        s3_object = os.environ["S3_Object"]
+
+        # save data in s3 object
+        s3_save_object(s3_bucket, s3_object, self.mock_json_data)
+
+        # verify the data was uploaded as expected
+        s3_resource = boto3.resource("s3")
+        s3_object = s3_resource.Object(s3_bucket, s3_object)
+        actual = s3_object.get()["Body"].read()
+        self.assertEqual(json.loads(actual), self.mock_json_data)
+
+    def test_sort_geo_data(self):
+        """
+        Test case for sort_geo_data
+        """
+        sort_geo_data(self.mock_json_data)
+
+        self.assertEqual(self.mock_json_data, self.mock_sorted_json_data)
+
+    def test_haversine_distance(self):
+        """
+        Test case for haversine_distance
+        """
+        point1 = (41.0, -71.0)  # loc 1
+        point2 = (52.0, -82.0)  # loc 2
+        distance_p1_p2 = 1481761.0266552921  # distance between point1 and point2
+        self.assertEqual(haversine_distance(point1, point2), distance_p1_p2)
+
+    @mock.patch("aws_lambda.http")
+    def test_fetch_geo_json(self, mock_http):
+        """
+        Test case for fetch_geo_json
+        """
+        mock_http.request.return_value.status_code = 200
+        mock_http.request.return_value.data = json.dumps(
+            self.mock_json_data, ensure_ascii=False
+        ).encode("utf8")
+        api_url = os.environ["API_URL"]
+        return_json = fetch_geo_json(api_url)
+        mock_http.request.assert_called_once_with("GET", api_url)
+        self.assertEqual(mock_http.request.return_value.status_code, 200)
+        self.assertEqual(return_json, self.mock_json_data)
 
     @mock.patch("aws_lambda.http")
     def test_lambda_handler(self, mock_http):

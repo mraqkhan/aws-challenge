@@ -1,5 +1,5 @@
 """
-lambda implementation for aws-challange provided 
+lambda implementation for aws-challange provided
 here: https://github.com/kernspin/aws-challenge
 """
 
@@ -44,23 +44,13 @@ def lambda_handler(event, context):
         logger.debug("Context: %s", context)
 
         logger.info("Call API to get geo data.")
-        resp = http.request("GET", os.environ["API_URL"])
-        logger.debug(resp.data)
-        geo_data = json.loads(resp.data.decode("utf-8"))
+        geo_data = fetch_geo_json(os.environ["API_URL"])
 
         logger.info("Sorting returned geo data based on distance from base_loc.")
-        geo_data["places"].sort(
-            key=lambda x: haversine_distance(base_loc, (x["lat"], x["lon"]))
-        )
+        sort_geo_data(geo_data)
 
         logger.info("Writing Obj to s3")
-        boto3.resource("s3").Bucket(os.environ["S3_Bucket"]).Object(
-            os.environ["S3_Object"]
-        ).put(
-            Body=json.dumps(geo_data, ensure_ascii=False).encode("utf8"),
-            ContentType="application/json",
-            ACL="public-read",
-        )
+        s3_save_object(os.environ["S3_Bucket"], os.environ["S3_Object"], geo_data)
 
         response = {"result": "success"}
         logger.debug("Lambda executed. Response: %s", response)
@@ -68,6 +58,37 @@ def lambda_handler(event, context):
         return response
     except Exception as error:
         return {"result": "error", "error_message": str(error)}
+
+
+def fetch_geo_json(url):
+    """
+    Get a json object from a url and loads it ito python dict object
+    """
+    resp = http.request("GET", url)
+    logger.debug(resp.data)
+    return json.loads(resp.data.decode("utf-8"))
+
+
+def sort_geo_data(geo_data_object):
+    """
+    Sort a list on geo-locations based on distance from base_loc
+    """
+    # sort the list in-place using haversine method and return the same object
+    geo_data_object["places"].sort(
+        key=lambda x: haversine_distance(base_loc, (x["lat"], x["lon"]))
+    )
+
+
+def s3_save_object(s3_bucket, s3_object, content):
+    """
+    Save the content in an s3_object in the s3_bucket
+    """
+    # instanciate an s3 object and save content to it
+    boto3.resource("s3").Bucket(s3_bucket).Object(s3_object).put(
+        Body=json.dumps(content, ensure_ascii=False).encode("utf8"),
+        ContentType="application/json",
+        ACL="public-read",
+    )
 
 
 def haversine_distance(point1, point2):

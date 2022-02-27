@@ -1,3 +1,7 @@
+# Solution
+sorted geo locations: https://aws-challange-s3-aq-default.s3.amazonaws.com/aws_challange_sorted.json
+
+
 # aws-challenge
 
 Coding challenge: Create an AWS infrastructure consisting of a lambda function and S3 bucket.
