@@ -187,9 +187,9 @@ class TestAWSLambda(unittest.TestCase):
         s3_object = s3_resource.Object(s3_bucket, s3_object)
         actual = s3_object.get()["Body"].read()
         self.assertEqual(json.loads(actual), self.mock_sorted_json_data)
-        self.assertEqual(result["result"], "success")
+        self.assertEqual(result["statusCode"], 200)
 
         with mock.patch.dict(os.environ, {"API_URL": "http://localhost:8080"}):
             mock_http.request.return_value.data = "error"
             result = lambda_handler(event, [])
-        self.assertEqual(result["result"], "error")
+        self.assertEqual(result["statusCode"], 400)

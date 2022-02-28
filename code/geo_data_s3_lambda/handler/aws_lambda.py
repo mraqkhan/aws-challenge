@@ -52,12 +52,12 @@ def lambda_handler(event, context):
         logger.info("Writing Obj to s3")
         s3_save_object(os.environ["S3_Bucket"], os.environ["S3_Object"], geo_data)
 
-        response = {"result": "success"}
+        response = {"body": json.dumps({"result": "success", "payload": geo_data}, ensure_ascii=False).encode("utf8"), "statusCode": 200}
         logger.debug("Lambda executed. Response: %s", response)
 
         return response
     except Exception as error:
-        return {"result": "error", "error_message": str(error)}
+        return {"body": json.dumps({"result": "error", "error_message": str(error)}), "statusCode": 400}
 
 
 def fetch_geo_json(url):

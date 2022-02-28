@@ -5,7 +5,7 @@ variable "env" {
 }
 
 variable "s3_object_name" {
-  description = "Environment tag for deployment"
+  description = "s3 object name in bucket"
   type        = string
   default     = "aws_challange_sorted.json"
 }
