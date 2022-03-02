@@ -13,11 +13,11 @@ terraform {
     dynamodb_table = "aws-challange-terraform_state-table"
     key            = "aws_challange.tfstate"
     profile        = "pbdemo"
-}
+  }
   required_version = ">= 1.1.6"
 }
 
 provider "aws" {
-  profile = "default"
-  region  = "us-east-1"
+  profile = var.aws_deployment_profile
+  region  = var.aws_deployment_region
 }

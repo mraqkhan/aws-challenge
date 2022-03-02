@@ -11,5 +11,5 @@ output "lambda_api_gw_call_url" {
 
 output "s3_object_public_url" {
   description = "Public URL for sorted json object in s3 bucket"
-  value       = "https://${aws_s3_bucket.lambda_s3_bucket.bucket}.s3.amazonaws.com/${var.s3_object_name}"
+  value       = "https://${aws_s3_bucket.aws_lambda_s3_bucket.bucket}.s3.amazonaws.com/${var.aws_s3_object_name}"
 }

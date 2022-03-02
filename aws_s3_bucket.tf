@@ -1,5 +1,5 @@
-resource "aws_s3_bucket" "lambda_s3_bucket" {
-  bucket        = "aws-challange-s3-aq-${terraform.workspace}"
+resource "aws_s3_bucket" "aws_lambda_s3_bucket" {
+  bucket        = "${var.aws_s3_bucket_name}-${terraform.workspace}"
   force_destroy = true
 
   tags = {
@@ -7,10 +7,3 @@ resource "aws_s3_bucket" "lambda_s3_bucket" {
     Environment = "${terraform.workspace}"
   }
 }
-
-# resource "aws_s3_bucket_public_access_block" "aws_s3_bucket_block_public_policy" {
-#   bucket = aws_s3_bucket.lambda_s3_bucket.id
-
-#   block_public_acls   = true
-#   block_public_policy = true
-# }
